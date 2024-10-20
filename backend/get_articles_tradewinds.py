@@ -226,7 +226,7 @@ def get_bullet_points(client: OpenAI, article: ArticleInfoContent) -> str:
     messages = [
         {"role": "system", "content": "You are a ship broker and an expert at providing concise and informative bullet points of news articles."},
         {"role": "system", "content": "I will provide you with the title, lead text, and content from a news article. I want you to summarize the lead text and content with two informative and concise bullet points. Respond only with the bullet points."},
-        {"role": "system", "content": "The bullet points should be formatted in the following manner: 'Point 1|Point 2'. Do not include the prefix '- '."},
+        {"role": "system", "content": "The bullet points should be formatted in the following manner: 'Point 1|Point 2'. Do not include any prefix '- ', the bullet points should only contain the actual text with a '|' as separator between the points."},
         {"role": "system", "content": "Only use information from the news article, and do not hallucinate."},
         {"role": "system", "content": "The bullet points should focus on key events, key entities, key numbers, and the authors analysis and opinion."},
         {"role": "system", "content": "The bullet points should give a ship broker the information they need to understand what the article is about, and what insights they gain from reading it."},
