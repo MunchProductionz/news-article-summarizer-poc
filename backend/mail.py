@@ -27,7 +27,7 @@ async def send_email_with_attachement(subject, body, to_email, audio_data_respon
 
     buffer = io.BytesIO()
 
-    for audio_data in audio_data_responses:
+    for audio_data in await audio_data_responses:
         for chunk in audio_data.iter_bytes(chunk_size=4096):
             buffer.write(chunk)
     buffer.seek(0)
