@@ -1,7 +1,7 @@
 import requests
 
 def get_articles():
-    url = "https://news-articles-summarizer-git-api-mithunansivakumars-projects.vercel.app/articles"
+    url = "https://news-article-summarizer-poc.vercel.app/articles"
 
     # Fetch the data from the URL
     response = requests.get(url)
@@ -20,7 +20,7 @@ def get_articles():
     
 
 def send_email(ids, mail):
-    url = "https://news-articles-summarizer-git-api-mithunansivakumars-projects.vercel.app/send_mail"
+    url = "https://news-article-summarizer-poc.vercel.app/send_mail"
     payload = {"ids": ids, "mail": mail}
     response = requests.post(url, json=payload)
 
