@@ -6,6 +6,7 @@ from email.mime.text import MIMEText
 import io
 import aiosmtplib
 import logging
+from datetime import datetime
 
 smtp_server = 'smtp.gmail.com'
 smtp_port = 587
@@ -14,7 +15,7 @@ smtp_password = 'royc bltj omda cbwq'
 from_email = 'carnegieaino@gmail.com'
 
 
-async def send_email_with_attachement(subject, body, to_email, audio_data):
+async def send_email_with_attachement(subject, body, to_email, audio_data_responses):
     
     msg = MIMEMultipart()
     msg['From'] = from_email
@@ -26,13 +27,15 @@ async def send_email_with_attachement(subject, body, to_email, audio_data):
 
     buffer = io.BytesIO()
 
-    for chunk in audio_data.iter_bytes(chunk_size=4096):
-        buffer.write(chunk)
+    for audio_data in audio_data_responses:
+        for chunk in audio_data.iter_bytes(chunk_size=4096):
+            buffer.write(chunk)
     buffer.seek(0)
 
     byte_data = buffer.getvalue()
 
-    filename = "summary.mp3"
+    today_date = datetime.today().strftime("%Y-%m-%d")
+    filename = f"Summaries {today_date}.mp3"
     
     # Create MIMEAudio object with the MP3 data directly from response
     audio = MIMEAudio(byte_data, _subtype='mp3')

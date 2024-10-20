@@ -73,17 +73,29 @@ def get_body_and_text_to_speech_text(ids):
     text_to_speech_text = f"Good morning! I hope you are having a great day."
     text_to_speech_text = f"Today is {today_weekday} {today_day_and_month}."
     text_to_speech_text += f"Here is a list of the top insights from the {len(ids)} {summary_or_summaries} you requested: {top_insights}."
-    
     text_to_speech_text += f"I will now go through each of the {len(ids)} summary one by one."
-    for i, article in enumerate(articles):
-        text_to_speech_text += f"Number {i+1}."
-        text_to_speech_text += f"{article['category']} news."
-        text_to_speech_text += f"Title of the article: {article['title']}."
-        text_to_speech_text += f"{article['summary']}."
-        
-    text_to_speech_text += f"That's all for today. Have a great day at work!"
     
-    return body, text_to_speech_text
+    # NOTE: We chunk 2 summaries at a time to avoid token limit of text to speech (4096 tokens) (Opening | 2 chunks at a time | Ending)
+    number_of_chunks = len(articles) // 2 + 1
+    chunked_articles = []
+    text_to_speech_texts = [text_to_speech_text]
+    for chunk_i in range(0, number_of_chunks + 1, 2):
+        chunked_articles.append([articles[chunk_i], articles[chunk_i + 1]])
+    for i, chunk in enumerate(chunked_articles):
+        text_to_speech_text = ""
+        for j, article in enumerate(chunk):
+            article_number = i + j + 1
+            text_to_speech_text += f"Number {article_number}."
+            text_to_speech_text += f"{article['category']} news."
+            text_to_speech_text += f"Title of the article: {article['title']}."
+            text_to_speech_text += f"{article['summary']}."
+        text_to_speech_texts.append(text_to_speech_text)
+        
+    text_to_speech_text = ""
+    text_to_speech_text += f"That's all for today. Have a great day at work!"
+    text_to_speech_texts.append(text_to_speech_text)
+    
+    return body, text_to_speech_texts
 
 async def summmarizer(ids, mail):
 
@@ -91,8 +103,8 @@ async def summmarizer(ids, mail):
     today_weekday = datetime.today().strftime("%A")
     article_or_articles = "article" if len(ids) == 1 else "articles"
     subject = f"{today_weekday} summaries {today_date}: {len(ids)} {article_or_articles}"
-    body, text_to_speech_text = get_body_and_text_to_speech_text(ids)
-    res = await run_in_thread(text_to_speech, text_to_speech_text)
+    body, text_to_speech_texts = get_body_and_text_to_speech_text(ids)
+    res = await run_in_thread(text_to_speech, text_to_speech_texts)
 
     msg = await send_email_with_attachement(subject, body, mail, res)
 
@@ -102,6 +114,9 @@ async def summmarizer(ids, mail):
 if __name__ == '__main__':
     load_dotenv()
     
-    ids = ["abf450a7-05b6-4456-9991-8a1039988295", "662677e6-5775-4af6-8d9a-7737d5ce9264"]
+    # ids = ['e2e5fc10-0e5c-4e83-8b0c-628ab99e9c13', '0aba67c3-0f99-4c1c-b117-4d2e8454716d']
+    ids = ['8e925a16-e25d-4cc9-9def-b956198cd2a0', 'e2e5fc10-0e5c-4e83-8b0c-628ab99e9c13', '0aba67c3-0f99-4c1c-b117-4d2e8454716d', 'c9862185-bc30-4e2b-91d9-517b909fa536', 'a53651ba-e3b2-45c6-bc39-e28e6f3f8e3c', 'bd6db94c-c688-497a-97a7-2bd6d6698f34', '1a764f51-2cf4-46e1-87ee-e4166c04db36', '1cbe4276-8714-46bd-aae7-2a404277c9b2', 'b34a11d4-641b-4d70-9343-040ac0f0dc57']
     mail = "henrik.raaen.bo.nadderud@gmail.com"
     asyncio.run(summmarizer(ids, mail))
+    
+    
